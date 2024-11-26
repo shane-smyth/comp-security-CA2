@@ -6,6 +6,11 @@ import javax.crypto.SecretKey;
 import java.io.FileWriter;
 import java.util.Base64;
 
+/*
+    video used for AES encryption and decryption
+    https://www.youtube.com/watch?v=LtUU8Q3rgjM
+ */
+
 public class EncryptionUtil {
 
     public static SecretKey getKey() throws Exception {
@@ -21,7 +26,7 @@ public class EncryptionUtil {
         String encryptedText = Base64.getEncoder().encodeToString(encryptedBytes);
 
         // Writing to file https://www.geeksforgeeks.org/java-program-to-write-into-a-file/
-        FileWriter fileWriter = new FileWriter("cipherText.txt");
+        FileWriter fileWriter = new FileWriter("ciphertext.txt");
         fileWriter.write(encryptedText);
         fileWriter.close();
 
@@ -32,6 +37,12 @@ public class EncryptionUtil {
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
         byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(cipherText));
-        return new String(decryptedBytes);
+        String plainText =  new String(decryptedBytes);
+
+        FileWriter fileWriter = new FileWriter("plaintext.txt");
+        fileWriter.write(plainText);
+        fileWriter.close();
+
+        return plainText;
     }
 }

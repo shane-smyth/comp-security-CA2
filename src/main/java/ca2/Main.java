@@ -1,18 +1,12 @@
 package ca2;
 
-import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
-import java.io.FileNotFoundException;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.FileReader;
 import java.util.Base64;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-/*
-    video used for AES encryption and decryption
-    https://www.youtube.com/watch?v=LtUU8Q3rgjM
- */
 public class Main {
     public static void main(String[] args) throws Exception {
 
@@ -31,23 +25,31 @@ public class Main {
                 menuChoice = MenuUtil.getMenuChoice(menuOptions.length);
                 switch (menuChoice) {
                     case 1:
-                        System.out.println("Encrypt");
-
                         System.out.println("enter file name: ");
-                        String fileName = keyboard.nextLine();
-                        fileName = TxtFileValidation.validateFileName(fileName);
-                        String plaintext = readFile(fileName);
+                        String encryptFileName = keyboard.nextLine();
+                        encryptFileName = TxtFileValidation.validateFileName(encryptFileName);
+                        String plaintext = readFile(encryptFileName);
 
-                        System.out.println(EncryptionUtil.encrypt(plaintext, secretKey)+"\n\n");
-                        System.out.println(plaintext);
+                        EncryptionUtil.encrypt(plaintext, secretKey);
+
+                        //https://stackoverflow.com/questions/5355466/converting-secret-key-into-a-string-and-vice-versa#:~:text=You%20can%20convert%20the%20SecretKey,to%20rebuild%20your%20original%20SecretKey%20.
+                        String displayKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+                        System.out.println("The file has been encrypted is in ciphertext.txt \nkey used is: "+displayKey);
                         break;
                     case 2:
-                        System.out.println("Decrypt");
+                        System.out.println("enter file to decrypt: ");
+                        String decryptFileName = keyboard.nextLine();
+                        decryptFileName = TxtFileValidation.validateFileName(decryptFileName);
+                        String cipherText = readFile(decryptFileName);
+                        System.out.println("enter valid key: ");
+                        String userKey = keyboard.nextLine();
 
-                        System.out.println("enter cipher text: ");
-                        String cipherText = keyboard.nextLine();
+                        //https://stackoverflow.com/questions/5355466/converting-secret-key-into-a-string-and-vice-versa#:~:text=You%20can%20convert%20the%20SecretKey,to%20rebuild%20your%20original%20SecretKey%20.
+                        byte[] decodeUserKey = Base64.getDecoder().decode(userKey);
+                        SecretKey originalUserKey = new SecretKeySpec(decodeUserKey, 0, decodeUserKey.length, "AES");
+                        EncryptionUtil.decrypt(cipherText, originalUserKey);
 
-                        System.out.println(EncryptionUtil.decrypt(cipherText, secretKey)+"\n\n");
+                        System.out.println("file has been decrypted and is now in plaintext.txt");
                     default:
                         break;
                 }
