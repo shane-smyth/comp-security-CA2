@@ -22,6 +22,7 @@ public class Main {
         };
 
         int menuChoice = -1;
+        SecretKey secretKey = getKey();
         do {
             MenuUtil.displayMenu(menuOptions, "Encryption Menu");
             try {
@@ -33,10 +34,15 @@ public class Main {
                         System.out.println("enter text: ");
                         String plaintext = keyboard.nextLine();
 
-                        System.out.println(encrypt(plaintext,getKey()));
+                        System.out.println(encrypt(plaintext, secretKey));
                         break;
                     case 2:
                         System.out.println("Decrypt");
+
+                        System.out.println("enter cipher text: ");
+                        String cipherText = keyboard.nextLine();
+
+                        System.out.println(decrypt(cipherText, secretKey));
                     default:
                         break;
                 }
@@ -58,5 +64,12 @@ public class Main {
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
         byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
         return Base64.getEncoder().encodeToString(encryptedBytes);
+    }
+
+    public static String decrypt(String cipherText, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(cipherText));
+        return new String(decryptedBytes);
     }
 }
