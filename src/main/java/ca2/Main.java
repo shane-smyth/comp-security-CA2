@@ -3,9 +3,16 @@ package ca2;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.FileReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Base64;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+
+/*
+    github link:
+    https://github.com/shane-smyth/comp-security-CA2
+ */
 
 public class Main {
     public static void main(String[] args) throws Exception {
@@ -25,23 +32,33 @@ public class Main {
                 menuChoice = MenuUtil.getMenuChoice(menuOptions.length);
                 switch (menuChoice) {
                     case 1:
-                        System.out.println("enter file name: ");
+                        System.out.print("\nenter file name to encrypt: ");
                         String encryptFileName = keyboard.nextLine();
                         encryptFileName = TxtFileValidation.validateFileName(encryptFileName);
+                        while (!Files.exists(Path.of(encryptFileName))) {//https://stackoverflow.com/questions/1816673/how-do-i-check-if-a-file-exists-in-java
+                            System.out.print("File not found, try again: ");
+                            encryptFileName = keyboard.nextLine();
+                            encryptFileName = TxtFileValidation.validateFileName(encryptFileName);
+                        }
                         String plaintext = readFile(encryptFileName);
-
                         EncryptionUtil.encrypt(plaintext, secretKey);
 
                         //https://stackoverflow.com/questions/5355466/converting-secret-key-into-a-string-and-vice-versa#:~:text=You%20can%20convert%20the%20SecretKey,to%20rebuild%20your%20original%20SecretKey%20.
                         String displayKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-                        System.out.println("The file has been encrypted is in ciphertext.txt \nkey used is: "+displayKey);
+                        System.out.println("The file has been encrypted is in ciphertext.txt \nkey used is: "+displayKey+"\n");
                         break;
                     case 2:
-                        System.out.println("enter file to decrypt: ");
+                        System.out.print("\nenter file name to decrypt: ");
                         String decryptFileName = keyboard.nextLine();
                         decryptFileName = TxtFileValidation.validateFileName(decryptFileName);
+                        while (!Files.exists(Path.of(decryptFileName))) {
+                            System.out.print("File not found, try again: ");
+                            decryptFileName = keyboard.nextLine();
+                            decryptFileName = TxtFileValidation.validateFileName(decryptFileName);
+                        }
                         String cipherText = readFile(decryptFileName);
-                        System.out.println("enter valid key: ");
+
+                        System.out.print("enter valid key: ");
                         String userKey = keyboard.nextLine();
 
                         //https://stackoverflow.com/questions/5355466/converting-secret-key-into-a-string-and-vice-versa#:~:text=You%20can%20convert%20the%20SecretKey,to%20rebuild%20your%20original%20SecretKey%20.
@@ -49,7 +66,7 @@ public class Main {
                         SecretKey originalUserKey = new SecretKeySpec(decodeUserKey, 0, decodeUserKey.length, "AES");
                         EncryptionUtil.decrypt(cipherText, originalUserKey);
 
-                        System.out.println("file has been decrypted and is now in plaintext.txt");
+                        System.out.println("file has been decrypted and is now in plaintext.txt\n");
                     default:
                         break;
                 }

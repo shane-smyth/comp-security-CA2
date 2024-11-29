@@ -19,7 +19,7 @@ public class EncryptionUtil {
         return keyGenerator.generateKey();
     }
 
-    public static String encrypt(String plainText, SecretKey secretKey) throws Exception {
+    public static void encrypt(String plainText, SecretKey secretKey) throws Exception {
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
         byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
@@ -29,11 +29,9 @@ public class EncryptionUtil {
         FileWriter fileWriter = new FileWriter("ciphertext.txt");
         fileWriter.write(encryptedText);
         fileWriter.close();
-
-        return encryptedText;
     }
 
-    public static String decrypt(String cipherText, SecretKey secretKey) throws Exception {
+    public static void decrypt(String cipherText, SecretKey secretKey) throws Exception {
         Cipher cipher = Cipher.getInstance("AES");
         cipher.init(Cipher.DECRYPT_MODE, secretKey);
         byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(cipherText));
@@ -42,7 +40,5 @@ public class EncryptionUtil {
         FileWriter fileWriter = new FileWriter("plaintext.txt");
         fileWriter.write(plainText);
         fileWriter.close();
-
-        return plainText;
     }
 }

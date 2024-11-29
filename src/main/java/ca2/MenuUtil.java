@@ -16,7 +16,7 @@ public class MenuUtil{
         Scanner keyboard = new Scanner(System.in);
         int choice = keyboard.nextInt();
         while (choice < 0 || choice > numItems) {
-            System.out.printf("Please enter a valid option (1 - %d)\n", numItems);
+            System.out.printf("Please enter a valid option (0 - %d)\n", numItems -1);
             choice = keyboard.nextInt();
         }
         return choice;
