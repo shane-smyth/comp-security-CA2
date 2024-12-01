@@ -1,5 +1,6 @@
 package ca2;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.FileReader;
@@ -47,6 +48,7 @@ public class Main {
                         String displayKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
                         System.out.println("The file has been encrypted is in ciphertext.txt \nkey used is: "+displayKey+"\n");
                         break;
+
                     case 2:
                         System.out.print("\nenter file name to decrypt: ");
                         String decryptFileName = keyboard.nextLine();
@@ -58,15 +60,33 @@ public class Main {
                         }
                         String cipherText = readFile(decryptFileName);
 
-                        System.out.print("enter valid key: ");
-                        String userKey = keyboard.nextLine();
+                        boolean decryptionSuccess = false;
+                        while (!decryptionSuccess) {
+                            try {
+                                SecretKey originalUserKey = null;
+                                while (originalUserKey == null) {
+                                    System.out.print("Enter valid key: ");
+                                    String userKey = keyboard.nextLine();
+                                    byte[] decodedUserKey = Base64.getDecoder().decode(userKey);
+                                    if (decodedUserKey.length != 32) {
+                                        throw new IllegalArgumentException("Key must be a 256-bit Base64-encoded string.");
+                                    }
+                                    originalUserKey = new SecretKeySpec(decodedUserKey, 0, decodedUserKey.length, "AES");
+                                }
 
-                        //https://stackoverflow.com/questions/5355466/converting-secret-key-into-a-string-and-vice-versa#:~:text=You%20can%20convert%20the%20SecretKey,to%20rebuild%20your%20original%20SecretKey%20.
-                        byte[] decodeUserKey = Base64.getDecoder().decode(userKey);
-                        SecretKey originalUserKey = new SecretKeySpec(decodeUserKey, 0, decodeUserKey.length, "AES");
-                        EncryptionUtil.decrypt(cipherText, originalUserKey);
-
-                        System.out.println("file has been decrypted and is now in plaintext.txt\n");
+                                EncryptionUtil.decrypt(cipherText, originalUserKey);
+                                System.out.println("File has been decrypted and is now in plaintext.txt\n");
+                                decryptionSuccess = true;
+                            } catch (BadPaddingException e) {
+                                System.out.println("Decryption failed. This could be due to an incorrect key or corrupted cipher text. Please try again.");
+                            } catch (IllegalArgumentException e) {
+                                System.out.println("Invalid key format: " + e.getMessage());
+                            } catch (Exception e) {
+                                System.out.println("An unexpected error occurred: " + e.getMessage());
+                                break; // Exit loop on severe errors
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
